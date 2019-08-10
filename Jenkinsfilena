@@ -1,0 +1,38 @@
+node()
+{
+
+    def MavenHome = tool name: 'Maven3.6.1', type:'maven'
+    properties([
+       buildDiscarder(logRotator(numToKeepStr: '5')),
+       pipelineTriggers([
+           pollSCM('* * * * *')
+       ])
+   ])
+    
+    
+    
+    
+    stage('CheckoutCode'){
+    git branch: 'development', credentialsId: 'a8c00c35-14f9-43a1-9653-9b9d0f3bf86c', url: 'https://github.com/nawaz316/maven-web-application.git'
+    }
+    stage('Build'){
+    sh "${MavenHome}/bin/mvn clean package"    
+    }
+    stage('UploadArtifact'){
+    sh "${MavenHome}/bin/mvn deploy"
+    }
+    stage('DeployApplication'){
+    sshagent(['ace8fe9b-a550-4d7d-babc-255ebc514d71']) {
+    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.91.188.9:/opt/apache-tomcat-9.0.21/webapps/maven-web-application.war"
+    }
+    }
+    stage('EmailNotification'){
+    emailext body: '''Build is over 
+please check the logs.
+
+Nawaz''', subject: 'Build Done', to: 'nawazawdevops@gmail.com'    
+    
+    }
+    
+    
+}
