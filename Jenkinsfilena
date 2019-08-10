@@ -2,13 +2,15 @@ node()
 {
 
     def MavenHome = tool name: 'Maven3.6.1', type:'maven'
-    properties([
+    
+   /*
+   properties([
        buildDiscarder(logRotator(numToKeepStr: '5')),
        pipelineTriggers([
            pollSCM('* * * * *')
        ])
    ])
-    
+    */
     
     
     
